@@ -1,0 +1,62 @@
+[
+  {
+    "id": "puzzle-1",
+    "title": "Back-Rank Checkmate",
+    "rating": 1000,
+    "theme": "Checkmate",
+    "turn": "w",
+    "fen": "6k1/5ppp/8/8/8/8/4QPPP/6K1 w - - 0 1",
+    "moves": ["Qe8#"],
+    "description": "Black's king is trapped behind their own pawns. Deliver the decisive back-rank checkmate in one move!"
+  },
+  {
+    "id": "puzzle-2",
+    "title": "Decisive Overload",
+    "rating": 1150,
+    "theme": "Deflection",
+    "turn": "w",
+    "fen": "r5k1/5ppp/8/8/8/8/4QPPP/5RK1 w - - 0 1",
+    "moves": ["Qe8+", "Rxe8", "Rxe8#"],
+    "description": "Black has one rook guarding the back rank. Overload the defender with an aggressive sacrifice!"
+  },
+  {
+    "id": "puzzle-3",
+    "title": "The Royal Knight Fork",
+    "rating": 1300,
+    "theme": "Fork",
+    "turn": "w",
+    "fen": "2r3k1/5ppp/8/3N4/8/8/5PPP/6K1 w - - 0 1",
+    "moves": ["Ne7+", "Kf8", "Nxc8"],
+    "description": "White's knight has a devastating fork square that attacks both king and undefended rook."
+  },
+  {
+    "id": "puzzle-4",
+    "title": "Rook Skewer Tactic",
+    "rating": 1420,
+    "theme": "Skewer",
+    "turn": "w",
+    "fen": "8/8/8/8/8/R7/4K3/r6k w - - 0 1",
+    "moves": ["Rh3+", "Kg2", "Rxa1"],
+    "description": "Check Black's exposed king along the rank/file to win the stranded rook behind it!"
+  },
+  {
+    "id": "puzzle-5",
+    "title": "Morphy's Opera Deflection",
+    "rating": 1650,
+    "theme": "Deflection",
+    "turn": "w",
+    "fen": "4kb1r/p2n1ppp/4q3/4p1B1/4P3/1Q6/PPP2PPP/2KR4 w k - 0 1",
+    "moves": ["Qb8+", "Nxb8", "Rd8#"],
+    "description": "Inspired by Paul Morphy's 1858 Opera game: Queen sacrifice deflecting the knight to deliver checkmate with the rook!"
+  },
+  {
+    "id": "puzzle-6",
+    "title": "Boden's Mate Theme",
+    "rating": 1800,
+    "theme": "Sacrifice",
+    "turn": "w",
+    "fen": "2kr3r/pp1n1ppp/2p1p3/8/1b1P4/2PB1Q1P/PP1B1PP1/R3K2R w KQ - 0 1",
+    "moves": ["Qxc6+", "bxc6", "Ba6#"],
+    "description": "Sacrifice the Queen to shatter the pawn shield and deliver checkmate with criss-crossing bishops!"
+  }
+]
