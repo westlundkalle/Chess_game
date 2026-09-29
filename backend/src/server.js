@@ -58,7 +58,7 @@ const io = new Server(server, {
 // Setup socket event routing
 setupSocketHandlers(io);
 
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, () => {
   console.log(`===============================================`);
   console.log(`  Chess Real-time Server running on port ${PORT}`);
   console.log(`  Ready for WebSocket & HTTP connections`);
