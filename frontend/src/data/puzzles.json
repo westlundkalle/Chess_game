@@ -15,9 +15,9 @@
     "rating": 1150,
     "theme": "Deflection",
     "turn": "w",
-    "fen": "r5k1/5ppp/8/8/8/8/4QPPP/5RK1 w - - 0 1",
+    "fen": "r5k1/5ppp/8/8/8/8/4QPPP/4R1K1 w - - 0 1",
     "moves": ["Qe8+", "Rxe8", "Rxe8#"],
-    "description": "Black has one rook guarding the back rank. Overload the defender with an aggressive sacrifice!"
+    "description": "Black has one rook guarding the back rank. Overload the defender with an aggressive Queen sacrifice to deliver mate!"
   },
   {
     "id": "puzzle-3",
@@ -27,17 +27,17 @@
     "turn": "w",
     "fen": "2r3k1/5ppp/8/3N4/8/8/5PPP/6K1 w - - 0 1",
     "moves": ["Ne7+", "Kf8", "Nxc8"],
-    "description": "White's knight has a devastating fork square that attacks both king and undefended rook."
+    "description": "White's knight has a devastating fork square that attacks both the black king and undefended rook on c8."
   },
   {
     "id": "puzzle-4",
-    "title": "Rook Skewer Tactic",
-    "rating": 1420,
+    "title": "Absolute Rook Skewer",
+    "rating": 1400,
     "theme": "Skewer",
     "turn": "w",
-    "fen": "8/8/8/8/8/R7/4K3/r6k w - - 0 1",
-    "moves": ["Rh3+", "Kg2", "Rxa1"],
-    "description": "Check Black's exposed king along the rank/file to win the stranded rook behind it!"
+    "fen": "4r3/8/8/4k3/8/8/8/R5K1 w - - 0 1",
+    "moves": ["Re1+", "Kd6", "Rxe8"],
+    "description": "Check Black's exposed king along the open e-file to force it away and win the stranded rook behind it!"
   },
   {
     "id": "puzzle-5",
@@ -47,7 +47,7 @@
     "turn": "w",
     "fen": "4kb1r/p2n1ppp/4q3/4p1B1/4P3/1Q6/PPP2PPP/2KR4 w k - 0 1",
     "moves": ["Qb8+", "Nxb8", "Rd8#"],
-    "description": "Inspired by Paul Morphy's 1858 Opera game: Queen sacrifice deflecting the knight to deliver checkmate with the rook!"
+    "description": "Inspired by Paul Morphy's 1858 Opera game: Queen sacrifice deflecting the knight to deliver back-rank mate with the rook!"
   },
   {
     "id": "puzzle-6",
@@ -55,8 +55,28 @@
     "rating": 1800,
     "theme": "Sacrifice",
     "turn": "w",
-    "fen": "2kr3r/pp1n1ppp/2p1p3/8/1b1P4/2PB1Q1P/PP1B1PP1/R3K2R w KQ - 0 1",
+    "fen": "2kr3r/pp1n1ppp/2p1p3/8/1b1P1B2/3B1Q1P/PPP2PP1/R4RK1 w - - 0 1",
     "moves": ["Qxc6+", "bxc6", "Ba6#"],
-    "description": "Sacrifice the Queen to shatter the pawn shield and deliver checkmate with criss-crossing bishops!"
+    "description": "Sacrifice the Queen on c6 to shatter the pawn shield and deliver checkmate with criss-crossing bishops!"
+  },
+  {
+    "id": "puzzle-7",
+    "title": "Philidor's Smothered Mate",
+    "rating": 1950,
+    "theme": "Smothered Mate",
+    "turn": "w",
+    "fen": "5r1k/6pp/7N/8/8/1Q6/6PP/7K w - - 0 1",
+    "moves": ["Qg8+", "Rxg8", "Nf7#"],
+    "description": "Deliver a queen sacrifice check on g8 that forces the rook to smother its own king, setting up the knight checkmate!"
+  },
+  {
+    "id": "puzzle-8",
+    "title": "Anastasia's Mate",
+    "rating": 2100,
+    "theme": "Checkmate",
+    "turn": "w",
+    "fen": "5r1k/4N1pp/8/7Q/8/R7/5PPP/7K w - - 0 1",
+    "moves": ["Qxh7+", "Kxh7", "Rh3#"],
+    "description": "The knight on e7 clamps down on the escape squares. Sacrifice the Queen on h7 to open the file for a lethal rook mate!"
   }
 ]

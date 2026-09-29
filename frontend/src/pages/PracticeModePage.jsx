@@ -58,9 +58,20 @@ export default function PracticeModePage() {
 
     const expectedSan = currentPuzzle.moves[moveStepIndex];
 
-    // Check if the played SAN or LAN matches the expected solution move
-    const isCorrect = (playedMove.san === expectedSan) ||
-      (playedMove.from + playedMove.to === expectedSan.replace(/[\+#]/g, ''));
+    // Simulate expected solution move on position clone
+    const expectedGame = new Chess(game.fen());
+    let expectedMoveObj = null;
+    try {
+      expectedMoveObj = expectedGame.move(expectedSan);
+    } catch (e) {
+      console.error('Error applying expected move:', e);
+    }
+
+    // Move is correct if SAN matches, OR if (from square + to square) matches!
+    const isCorrect = expectedMoveObj && (
+      playedMove.san === expectedMoveObj.san ||
+      (playedMove.from === expectedMoveObj.from && playedMove.to === expectedMoveObj.to)
+    );
 
     if (!isCorrect) {
       // Incorrect move: play sound and notify
