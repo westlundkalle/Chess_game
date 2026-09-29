@@ -2,7 +2,7 @@ import React from 'react';
 import { DIFFICULTY_PRESETS } from '../hooks/useStockfish';
 import { Cpu, ShieldCheck } from 'lucide-react';
 
-export default function DifficultySelector({ difficulty, setDifficulty, disabled }) {
+export default function DifficultySelector({ difficulty, setDifficulty, isThinking }) {
   const current = DIFFICULTY_PRESETS[difficulty] || DIFFICULTY_PRESETS.intermediate;
 
   return (
@@ -24,13 +24,12 @@ export default function DifficultySelector({ difficulty, setDifficulty, disabled
           return (
             <button
               key={key}
-              disabled={disabled}
               onClick={() => setDifficulty(key)}
               className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all text-left truncate ${
                 isSelected
                   ? 'bg-amber-500 text-slate-950 font-bold shadow'
                   : 'bg-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
-              } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+              }`}
             >
               <div className="truncate">{val.name.split(' ')[0]}</div>
               <div className={`text-[10px] opacity-80 ${isSelected ? 'text-slate-900' : 'text-slate-400'}`}>

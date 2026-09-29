@@ -7,7 +7,7 @@ import CapturedPieces from '../components/CapturedPieces';
 import GameOverModal from '../components/GameOverModal';
 import { useStockfish } from '../hooks/useStockfish';
 import { playMoveSound } from '../utils/sound';
-import { RotateCcw, Flag, ArrowLeftRight, Bot, User, Loader2 } from 'lucide-react';
+import { RotateCcw, Flag, Bot, User, Loader2 } from 'lucide-react';
 
 export default function AiModePage() {
   const [game, setGame] = useState(() => new Chess());
@@ -43,7 +43,7 @@ export default function AiModePage() {
     return { white: capturedWhite, black: capturedBlack };
   };
 
-  const checkGameEnd = (currentChess, playerMoved) => {
+  const checkGameEnd = (currentChess) => {
     if (currentChess.isGameOver()) {
       let title = 'Game Over';
       let subtitle = '';
@@ -80,8 +80,7 @@ export default function AiModePage() {
       aiThinkingRef.current = true;
       const currentFen = game.fen();
 
-      // Slight natural thinking pause for lower levels
-      const delay = difficulty === 'beginner' ? 350 : 200;
+      const delay = difficulty === 'beginner' ? 300 : 150;
       const timer = setTimeout(() => {
         getAiMove(currentFen, (bestMove) => {
           aiThinkingRef.current = false;
@@ -106,10 +105,11 @@ export default function AiModePage() {
                 playMoveSound('move');
               }
 
-              checkGameEnd(game, false);
+              checkGameEnd(game);
             }
           } catch (e) {
             console.error('AI move execution error:', e);
+            aiThinkingRef.current = false;
           }
         });
       }, delay);
@@ -142,16 +142,17 @@ export default function AiModePage() {
         playMoveSound('move');
       }
 
-      checkGameEnd(game, true);
+      checkGameEnd(game);
       return true;
     } catch {
       return false;
     }
   };
 
-  const handleResetGame = () => {
+  const handleSelectColor = (color) => {
     stop();
     aiThinkingRef.current = false;
+    setPlayerColor(color);
     const newGame = new Chess();
     setGame(newGame);
     setFen(newGame.fen());
@@ -159,6 +160,10 @@ export default function AiModePage() {
     setCaptured({ white: [], black: [] });
     setLastMove(null);
     setGameOverInfo({ isOpen: false, title: '', subtitle: '', isWinner: false });
+  };
+
+  const handleResetGame = () => {
+    handleSelectColor(playerColor);
   };
 
   const handleResign = () => {
@@ -194,7 +199,7 @@ export default function AiModePage() {
                   )}
                 </div>
                 <div className="text-xs text-slate-400">
-                  Difficulty: {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
+                  Playing as {playerColor === 'white' ? 'Black' : 'White'} • {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
                 </div>
               </div>
             </div>
@@ -244,11 +249,11 @@ export default function AiModePage() {
 
         {/* Right Column: Controls, History, Material */}
         <div className="lg:col-span-4 space-y-4">
-          {/* Difficulty Tuning */}
+          {/* Difficulty Tuning - Always Accessible */}
           <DifficultySelector
             difficulty={difficulty}
             setDifficulty={setDifficulty}
-            disabled={history.length > 0 && !game.isGameOver()}
+            isThinking={isThinking}
           />
 
           {/* Side & Board Orientation Control */}
@@ -256,24 +261,22 @@ export default function AiModePage() {
             <label className="text-xs font-semibold uppercase text-slate-400 block mb-2">Play As</label>
             <div className="grid grid-cols-2 gap-2 mb-4">
               <button
-                disabled={history.length > 0}
-                onClick={() => setPlayerColor('white')}
+                onClick={() => handleSelectColor('white')}
                 className={`py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
                   playerColor === 'white'
-                    ? 'bg-slate-100 text-slate-900 shadow'
+                    ? 'bg-slate-100 text-slate-900 shadow font-bold'
                     : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                } ${history.length > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                }`}
               >
                 White (First)
               </button>
               <button
-                disabled={history.length > 0}
-                onClick={() => setPlayerColor('black')}
+                onClick={() => handleSelectColor('black')}
                 className={`py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
                   playerColor === 'black'
-                    ? 'bg-slate-700 text-white shadow border border-slate-600'
+                    ? 'bg-amber-500 text-slate-950 shadow font-bold'
                     : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                } ${history.length > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                }`}
               >
                 Black (Second)
               </button>
