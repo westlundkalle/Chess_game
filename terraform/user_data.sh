@@ -1,20 +1,16 @@
-#!/usr/bin/env bash
-# ==============================================================================
-# Cloud-init User Data Script for AWS EC2 (Ubuntu)
-# Automatically installs Docker, clones the repository, and starts the Chess app.
-# ==============================================================================
+#!/bin/bash
 set -e
 
-# Redirect stdout and stderr to a log file for debugging
+# Redirect output for logging and troubleshooting
 exec > >(tee -a /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
+echo "=== Starting Automated Grandmaster Chess Server Provisioning ==="
 
-echo "Starting automated EC2 deployment via Terraform user_data..."
-
-# 1. Update and install prerequisites
+# 1. Update system packages
+export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
 apt-get install -y ca-certificates curl gnupg lsb-release git
 
-# 2. Install Docker
+# 2. Install official Docker and Docker Compose plugin
 install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 chmod a+r /etc/apt/keyrings/docker.asc
@@ -31,17 +27,17 @@ systemctl enable docker
 systemctl start docker
 usermod -aG docker ubuntu
 
-# 3. Clone and launch Chess application
+# 3. Clone application repository from GitHub
 APP_DIR="/home/ubuntu/Chess_game"
-
-if [ ! -d "$APP_DIR" ]; then
-    git clone https://github.com/westlundkalle/Chess_game.git "$APP_DIR"
-fi
+echo "Cloning application from ${repo_url} into $APP_DIR..."
+rm -rf "$APP_DIR"
+git clone "${repo_url}" "$APP_DIR"
 
 cd "$APP_DIR"
 chown -R ubuntu:ubuntu "$APP_DIR"
 
-# Launch Docker containers
+# 4. Spin up Docker containers (Frontend, Backend, and WebSocket reverse proxy)
+echo "Spinning up Docker containers via Docker Compose..."
 docker compose up -d --build
 
-echo "Grandmaster Arena successfully deployed and listening on Port 80!"
+echo "=== Grandmaster Chess Deployment Completed Successfully on Port 80 ==="
