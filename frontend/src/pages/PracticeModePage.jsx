@@ -32,7 +32,8 @@ import {
   Pause,
   Clock,
   Shuffle,
-  Dices
+  Dices,
+  Lock
 } from 'lucide-react';
 
 // Fisher-Yates shuffle algorithm for unbiassed puzzle randomization
@@ -113,6 +114,7 @@ export default function PracticeModePage() {
 
   // Feature 3: Progressive Multi-Stage Hints (0: None, 1: Piece, 2: Target, 3: Full Solution)
   const [hintStage, setHintStage] = useState(0);
+  const [showTakeawayEarly, setShowTakeawayEarly] = useState(false);
 
   // Feature 5: Analyze with Stockfish
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -165,6 +167,7 @@ export default function PracticeModePage() {
     setEloDelta(null);
     setIsAnalyzing(false);
     analysisSnapshotRef.current = null;
+    setShowTakeawayEarly(false);
   }, [puzzleIndex, currentPuzzle]);
 
   // Request Stockfish live evaluation when analysis mode is active
@@ -454,6 +457,7 @@ export default function PracticeModePage() {
     setIsSolved(false);
     setLastMove(null);
     setHintStage(0);
+    setShowTakeawayEarly(false);
   };
 
   const handleNextPuzzle = () => {
@@ -1198,26 +1202,56 @@ export default function PracticeModePage() {
 
           {/* Feature 6: Grandmaster Explanation / Educational Breakdown */}
           {currentPuzzle.explanation && (
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
-              <div className="flex items-center gap-2 mb-2 text-white font-bold text-xs">
-                <Info className="w-4 h-4 text-amber-400" />
-                Tactical Breakdown
+            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm transition-all">
+              <div className="flex items-center justify-between mb-2.5 pb-2 border-b border-slate-800/80">
+                <div className="flex items-center gap-2 text-white font-bold text-xs">
+                  <Info className="w-4 h-4 text-amber-400" />
+                  Grandmaster Breakdown & Takeaway
+                </div>
+                {isSolved ? (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 animate-pulse">
+                    <CheckCircle2 className="w-3 h-3" /> Unlocked
+                  </span>
+                ) : showTakeawayEarly ? (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                    Revealed Early
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700 flex items-center gap-1">
+                    <Lock className="w-3 h-3" /> Locked
+                  </span>
+                )}
               </div>
 
-              <div className="space-y-2 text-xs">
-                <div>
-                  <span className="text-slate-400 font-semibold block text-[10px] uppercase">Core Concept:</span>
-                  <p className="text-slate-200">{currentPuzzle.explanation.concept}</p>
+              {isSolved || showTakeawayEarly ? (
+                <div className="space-y-2.5 text-xs animate-in fade-in duration-300">
+                  <div>
+                    <span className="text-slate-400 font-semibold block text-[10px] uppercase">Core Concept:</span>
+                    <p className="text-slate-200">{currentPuzzle.explanation.concept}</p>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 font-semibold block text-[10px] uppercase">The Opponent's Blunder:</span>
+                    <p className="text-slate-300">{currentPuzzle.explanation.blunder}</p>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                    <span className="text-amber-400 font-bold block text-[10px] uppercase">Grandmaster Takeaway:</span>
+                    <p className="text-slate-200 mt-0.5 leading-relaxed">{currentPuzzle.explanation.takeaway}</p>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-slate-400 font-semibold block text-[10px] uppercase">The Opponent's Blunder:</span>
-                  <p className="text-slate-300">{currentPuzzle.explanation.blunder}</p>
+              ) : (
+                <div className="p-3 bg-slate-950/70 border border-slate-800/80 rounded-lg text-center space-y-2">
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Complete the puzzle to unlock the Grandmaster analysis, concept breakdown, and tactical takeaway!
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowTakeawayEarly(true)}
+                    className="text-[10px] text-slate-500 hover:text-amber-400 underline transition-colors cursor-pointer"
+                  >
+                    Peek takeaway early (Contains Spoilers)
+                  </button>
                 </div>
-                <div className="p-2.5 rounded-lg bg-amber-500/5 border border-amber-500/10">
-                  <span className="text-amber-400 font-bold block text-[10px] uppercase">Grandmaster Takeaway:</span>
-                  <p className="text-slate-200 mt-0.5">{currentPuzzle.explanation.takeaway}</p>
-                </div>
-              </div>
+              )}
             </div>
           )}
 
