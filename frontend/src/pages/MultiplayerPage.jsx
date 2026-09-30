@@ -10,6 +10,7 @@ import {
   Users,
   Copy,
   Check,
+  Link,
   Send,
   Flag,
   RotateCcw,
@@ -20,6 +21,7 @@ import {
   Sparkles,
   WifiOff
 } from 'lucide-react';
+import { copyToClipboard } from '../utils/clipboard';
 
 export default function MultiplayerPage() {
   const {
@@ -39,9 +41,17 @@ export default function MultiplayerPage() {
   } = useSocket();
 
   const [playerName, setPlayerName] = useState(() => localStorage.getItem('chess_player_name') || 'Grandmaster');
-  const [inputRoomId, setInputRoomId] = useState('');
+  const [inputRoomId, setInputRoomId] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return (params.get('room') || params.get('join') || '').toUpperCase();
+    } catch {
+      return '';
+    }
+  });
   const [preferredColor, setPreferredColor] = useState('white');
   const [copiedCode, setCopiedCode] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const [chatInput, setChatInput] = useState('');
   const [gameOverInfo, setGameOverInfo] = useState({ isOpen: false, title: '', subtitle: '', isWinner: false });
 
@@ -143,11 +153,23 @@ export default function MultiplayerPage() {
     }
   };
 
-  const copyRoomCode = () => {
+  const copyRoomCode = async () => {
     if (!roomData?.id) return;
-    navigator.clipboard.writeText(roomData.id);
-    setCopiedCode(true);
-    setTimeout(() => setCopiedCode(false), 2000);
+    const ok = await copyToClipboard(roomData.id);
+    if (ok) {
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2500);
+    }
+  };
+
+  const copyInviteLink = async () => {
+    if (!roomData?.id) return;
+    const url = `${window.location.origin}${window.location.pathname}?room=${roomData.id}`;
+    const ok = await copyToClipboard(url);
+    if (ok) {
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2500);
+    }
   };
 
   const handleSendChat = (e) => {
@@ -317,17 +339,49 @@ export default function MultiplayerPage() {
     <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
       {/* Room Header & Share Bar */}
       <div className="max-w-[560px] lg:max-w-none mx-auto mb-4 bg-slate-900 border border-slate-800 rounded-xl p-3 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center flex-wrap gap-2 sm:gap-3">
           <span className="text-xs text-slate-400 uppercase font-semibold">Room Code:</span>
-          <span className="text-lg font-mono font-bold text-amber-400 tracking-wider">
-            {roomData.id}
-          </span>
+          
           <button
+            type="button"
             onClick={copyRoomCode}
-            className="flex items-center gap-1 text-xs px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors"
+            title="Click to copy code"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-700 hover:border-amber-500/60 transition-all cursor-pointer group"
+          >
+            <span className="text-lg font-mono font-bold text-amber-400 tracking-wider">
+              {roomData.id}
+            </span>
+            {copiedCode ? (
+              <Check className="w-4 h-4 text-emerald-400" />
+            ) : (
+              <Copy className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-400 transition-colors" />
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={copyRoomCode}
+            className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border transition-all ${
+              copiedCode
+                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 font-semibold'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+            }`}
           >
             {copiedCode ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-            {copiedCode ? 'Copied!' : 'Copy Code'}
+            {copiedCode ? 'Code Copied!' : 'Copy Code'}
+          </button>
+
+          <button
+            type="button"
+            onClick={copyInviteLink}
+            className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border transition-all ${
+              copiedLink
+                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 font-semibold'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700'
+            }`}
+          >
+            {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Link className="w-3.5 h-3.5" />}
+            {copiedLink ? 'Link Copied!' : 'Copy Invite Link'}
           </button>
         </div>
 

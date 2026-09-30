@@ -5,7 +5,13 @@ import PracticeModePage from './pages/PracticeModePage';
 import MultiplayerPage from './pages/MultiplayerPage';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('ai');
+  const [activeTab, setActiveTab] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('room') || params.get('join')) return 'multiplayer';
+    } catch {}
+    return 'ai';
+  });
   const [isServerOnline, setIsServerOnline] = useState(false);
 
   // Poll backend health status
