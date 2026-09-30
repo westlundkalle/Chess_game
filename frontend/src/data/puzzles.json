@@ -7,7 +7,9 @@
     "difficulty": "beginner",
     "turn": "w",
     "fen": "6k1/5ppp/8/8/8/8/4QPPP/6K1 w - - 0 1",
-    "moves": ["Qe8#"],
+    "moves": [
+      "Qe8#"
+    ],
     "hintPiece": "e2",
     "hintTarget": "e8",
     "hintText": "Look at Black's back rank. Their King is trapped behind their own pawns.",
@@ -25,7 +27,11 @@
     "difficulty": "beginner",
     "turn": "w",
     "fen": "r5k1/5ppp/8/8/8/8/4QPPP/4R1K1 w - - 0 1",
-    "moves": ["Qe8+", "Rxe8", "Rxe8#"],
+    "moves": [
+      "Qe8+",
+      "Rxe8",
+      "Rxe8#"
+    ],
     "hintPiece": "e2",
     "hintTarget": "e8",
     "hintText": "Black has one rook guarding e8. Can you overload or deflect it?",
@@ -43,7 +49,11 @@
     "difficulty": "intermediate",
     "turn": "w",
     "fen": "2r3k1/5ppp/8/3N4/8/8/5PPP/6K1 w - - 0 1",
-    "moves": ["Ne7+", "Kf8", "Nxc8"],
+    "moves": [
+      "Ne7+",
+      "Kf8",
+      "Nxc8"
+    ],
     "hintPiece": "d5",
     "hintTarget": "e7",
     "hintText": "Your knight can jump to a square that attacks both the King and the unprotected rook.",
@@ -61,7 +71,11 @@
     "difficulty": "intermediate",
     "turn": "w",
     "fen": "4r3/8/8/4k3/8/8/8/R5K1 w - - 0 1",
-    "moves": ["Re1+", "Kd6", "Rxe8"],
+    "moves": [
+      "Re1+",
+      "Kd6",
+      "Rxe8"
+    ],
     "hintPiece": "a1",
     "hintTarget": "e1",
     "hintText": "Can you check the King along an open file where the enemy rook is directly behind it?",
@@ -73,13 +87,17 @@
   },
   {
     "id": "puzzle-5",
-    "title": "Morphy's Opera Deflection",
+    "title": "Morphy's Opera Deflection (1858)",
     "rating": 1650,
     "theme": "Deflection",
     "difficulty": "intermediate",
     "turn": "w",
     "fen": "4kb1r/p2n1ppp/4q3/4p1B1/4P3/1Q6/PPP2PPP/2KR4 w k - 0 1",
-    "moves": ["Qb8+", "Nxb8", "Rd8#"],
+    "moves": [
+      "Qb8+",
+      "Nxb8",
+      "Rd8#"
+    ],
     "hintPiece": "b3",
     "hintTarget": "b8",
     "hintText": "The d7 knight is the only piece stopping Rd8 mate. How do you remove or deflect it?",
@@ -97,7 +115,11 @@
     "difficulty": "master",
     "turn": "w",
     "fen": "2kr3r/pp1n1ppp/2p1p3/8/1b1P1B2/3B1Q1P/PPP2PP1/R4RK1 w - - 0 1",
-    "moves": ["Qxc6+", "bxc6", "Ba6#"],
+    "moves": [
+      "Qxc6+",
+      "bxc6",
+      "Ba6#"
+    ],
     "hintPiece": "f3",
     "hintTarget": "c6",
     "hintText": "Look at the criss-crossing bishop diagonals towards Black's queenside King.",
@@ -115,7 +137,11 @@
     "difficulty": "master",
     "turn": "w",
     "fen": "5r1k/6pp/7N/8/8/1Q6/6PP/7K w - - 0 1",
-    "moves": ["Qg8+", "Rxg8", "Nf7#"],
+    "moves": [
+      "Qg8+",
+      "Rxg8",
+      "Nf7#"
+    ],
     "hintPiece": "b3",
     "hintTarget": "g8",
     "hintText": "Force Black's own rook to surround and trap its King.",
@@ -133,7 +159,11 @@
     "difficulty": "master",
     "turn": "w",
     "fen": "5r1k/4N1pp/8/7Q/8/R7/5PPP/7K w - - 0 1",
-    "moves": ["Qxh7+", "Kxh7", "Rh3#"],
+    "moves": [
+      "Qxh7+",
+      "Kxh7",
+      "Rh3#"
+    ],
     "hintPiece": "h5",
     "hintTarget": "h7",
     "hintText": "The knight on e7 walls off g8 and g6. How do you open the h-file for your rook?",
@@ -141,6 +171,420 @@
       "concept": "Anastasia's Mate Pattern",
       "blunder": "Black gave up the e7 outpost to White's knight, which created a lethal barrier trapping the King against the board edge.",
       "takeaway": "Knight on e7 + open h-file rook is an unstoppable checkmate pattern. Sacrificing the Queen to pry open the file finishes the combination."
+    }
+  },
+  {
+    "id": "puzzle-9",
+    "title": "The Immortal Game (Anderssen vs Kieseritzky, 1851)",
+    "rating": 2200,
+    "theme": "Sacrifice",
+    "difficulty": "master",
+    "turn": "w",
+    "fen": "r1bk2nr/p2p1pNp/n2B4/1p1NP2P/6P1/3P1Q2/P1P1K3/q5b1 w - - 1 22",
+    "moves": [
+      "Qf6+",
+      "Nxf6",
+      "Be7#"
+    ],
+    "hintPiece": "f3",
+    "hintTarget": "f6",
+    "hintText": "Anderssen famously offered his Queen as the ultimate decoy to deliver checkmate with his two remaining bishops.",
+    "explanation": {
+      "concept": "Ultimate Queen Decoy into Minor Piece Mate",
+      "blunder": "Black went on a reckless Queen hunt gobbling both White rooks on a1 and h1, leaving their own King surrounded.",
+      "takeaway": "Material is secondary to coordinated mating threats. Sacrificing the Queen on f6 removes the knight guarding e7, allowing Be7#."
+    }
+  },
+  {
+    "id": "puzzle-10",
+    "title": "Game of the Century (Bobby Fischer vs Donald Byrne, 1956)",
+    "rating": 2250,
+    "theme": "Sacrifice",
+    "difficulty": "master",
+    "turn": "b",
+    "fen": "r3r1k1/pp3pbp/1qp3p1/2B5/2BP2b1/Q1n2N2/P4PPP/3R1K1R b - - 3 17",
+    "moves": [
+      "Be6",
+      "Bxb6",
+      "Bxc4+"
+    ],
+    "hintPiece": "g4",
+    "hintTarget": "e6",
+    "hintText": "Playing as 13-year-old Bobby Fischer: ignore the attack on your Queen and offer it with 17...Be6!!",
+    "explanation": {
+      "concept": "Deep Queen Sacrifice & Windmill Preparation",
+      "blunder": "White attacked the Black Queen expecting an easy retreat, underestimating Black's crushing bishop discovered checks.",
+      "takeaway": "Bobby Fischer's 17...Be6!! is one of the most famous moves in chess history, launching a decisive windmill that dismantled White's entire army."
+    }
+  },
+  {
+    "id": "puzzle-11",
+    "title": "The Gold Coins Game (Marshall vs Levitsky, 1912)",
+    "rating": 2300,
+    "theme": "Queen Trap",
+    "difficulty": "master",
+    "turn": "b",
+    "fen": "5rk1/pp4pp/4p3/2R3Q1/3n4/2q4r/P1P2PPP/5RK1 b - - 1 23",
+    "moves": [
+      "Qg3",
+      "hxg3",
+      "Ne2#"
+    ],
+    "hintPiece": "c3",
+    "hintTarget": "g3",
+    "hintText": "Frank Marshall placed his Queen where THREE different White pieces could capture it!",
+    "explanation": {
+      "concept": "Triple-Attacked Queen Decoy",
+      "blunder": "White moved Rc5 trying to counter-attack Black's Queen, failing to see the mate threats on h2 and f2.",
+      "takeaway": "23...Qg3!! provoked spectators to shower the board with gold coins. If 24.hxg3 Ne2#, if 24.fxg3 Ne2+ 25.Kh1 Rxf1#, and if 24.Qxg3 Ne2+ forks and wins."
+    }
+  },
+  {
+    "id": "puzzle-12",
+    "title": "Carlsen's Championship Queen Sac (vs Karjakin, 2016)",
+    "rating": 2250,
+    "theme": "Sacrifice",
+    "difficulty": "master",
+    "turn": "w",
+    "fen": "2R5/4bppk/1p1p4/5R1P/4PQ2/5P2/r4q1P/7K w - - 1 50",
+    "moves": [
+      "Qh6+",
+      "Kxh6",
+      "Rh8#"
+    ],
+    "hintPiece": "f4",
+    "hintTarget": "h6",
+    "hintText": "Karjakin threatens mate on g2 and f1. Can you sacrifice your Queen to force mate first?",
+    "explanation": {
+      "concept": "Decoy Queen Sacrifice on the Edge",
+      "blunder": "Black sought counterplay with 49...Kh7, hoping their active queen and rook would provide perpetual checks.",
+      "takeaway": "Magnus Carlsen won his World Championship tiebreak with 50.Qh6+!! Both 50...Kxh6 51.Rh8# and 50...gxh6 51.Rxf7# deliver unavoidable checkmate."
+    }
+  },
+  {
+    "id": "puzzle-13",
+    "title": "Lasker's Double Bishop Sacrifice (1889)",
+    "rating": 2150,
+    "theme": "Sacrifice",
+    "difficulty": "master",
+    "turn": "w",
+    "fen": "r4rk1/1b2bppp/ppq1p3/2ppB2n/5P2/1P1BP3/P1PPQ1PP/R4RK1 w - - 0 15",
+    "moves": [
+      "Bxh7+",
+      "Kxh7",
+      "Qxh5+",
+      "Kg8",
+      "Bxg7"
+    ],
+    "hintPiece": "d3",
+    "hintTarget": "h7",
+    "hintText": "World Champion Emanuel Lasker destroyed Black's kingside by sacrificing BOTH bishops sequentially.",
+    "explanation": {
+      "concept": "Double Bishop Kingside Annihilation",
+      "blunder": "Black played passively with their pieces on the queenside, leaving the King unprotected against light and dark bishop breaches.",
+      "takeaway": "The double bishop sacrifice (Bxh7+ followed by Bxg7) strips the enemy King naked, followed by Qh5+ and a lethal rook lift via Rf3-h3."
+    }
+  },
+  {
+    "id": "puzzle-14",
+    "title": "Kasparov's Immortal (vs Topalov, 1999)",
+    "rating": 2400,
+    "theme": "Sacrifice",
+    "difficulty": "master",
+    "turn": "w",
+    "fen": "b2r3r/k4p1p/p2q1np1/NppP4/3p1Q2/P4PPB/1PP4P/1K1RR3 w - - 1 24",
+    "moves": [
+      "Rxd4",
+      "cxd4",
+      "Re7+",
+      "Kb6",
+      "Qxd4+"
+    ],
+    "hintPiece": "d1",
+    "hintTarget": "d4",
+    "hintText": "Kasparov initiated one of the greatest attacking combinations in history with a legendary rook sacrifice on d4.",
+    "explanation": {
+      "concept": "The Immortal Rook Sacrifice & King Hunt",
+      "blunder": "Topalov accepted the pawn exchange on d4, walking into an open d- and e-file double rook assault.",
+      "takeaway": "Kasparov's 24.Rxd4!! dragged the enemy King all the way from a7 down to a4 in a breathtaking 15-move tactical pursuit."
+    }
+  },
+  {
+    "id": "puzzle-15",
+    "title": "Légal's Mate (De Légal vs Saint-Brie, 1750)",
+    "rating": 1450,
+    "theme": "Checkmate",
+    "difficulty": "intermediate",
+    "turn": "w",
+    "fen": "rn1qkbnr/ppp2p1p/3p2p1/4p3/2B1P1b1/2N2N2/PPPP1PPP/R1BQK2R w KQkq - 0 5",
+    "moves": [
+      "Nxe5",
+      "Bxd1",
+      "Bxf7+",
+      "Ke7",
+      "Nd5#"
+    ],
+    "hintPiece": "f3",
+    "hintTarget": "e5",
+    "hintText": "Your Queen is pinned by Black's bishop on g4. Is the pin really absolute?",
+    "explanation": {
+      "concept": "Apparent Pin & Central Knight Coordination",
+      "blunder": "Black pinned White's f3 knight to the Queen, assuming White was forbidden from moving it.",
+      "takeaway": "Never blindly assume a relative pin is unbreakable. White gives up the Queen to deliver a stunning 3-piece checkmate with Bxf7+ and Nd5#."
+    }
+  },
+  {
+    "id": "puzzle-16",
+    "title": "Judit Polgár's Olympiad Queen Sac (1988)",
+    "rating": 1550,
+    "theme": "Checkmate",
+    "difficulty": "intermediate",
+    "turn": "w",
+    "fen": "r1b2rk1/pp1p1p1p/2n3pQ/5qB1/8/2P5/P4PPP/4RRK1 w - - 2 17",
+    "moves": [
+      "Qxf8+",
+      "Kxf8",
+      "Bh6+",
+      "Kg8",
+      "Re8#"
+    ],
+    "hintPiece": "h6",
+    "hintTarget": "f8",
+    "hintText": "12-year-old Judit Polgár saw that Black's back-rank rook was the only barrier stopping checkmate.",
+    "explanation": {
+      "concept": "Deflection Queen Sacrifice into Back-Rank Mate",
+      "blunder": "Black relied on 16...Qf5 to defend the f7 and g7 squares, missing the direct Queen destruction of f8.",
+      "takeaway": "Judit Polgár removed the defensive linchpin with 17.Qxf8+! After Kxf8, Bh6+ forces the king back to g8 for Re8#."
+    }
+  },
+  {
+    "id": "puzzle-17",
+    "title": "Alekhine's French Miniature (1931)",
+    "rating": 1200,
+    "theme": "Checkmate",
+    "difficulty": "beginner",
+    "turn": "w",
+    "fen": "r1bqk2r/p1pn1pp1/1p2pn1p/8/3P4/B1PB4/P1P1QPPP/R3K1NR w KQkq - 0 10",
+    "moves": [
+      "Qxe6+",
+      "fxe6",
+      "Bg6#"
+    ],
+    "hintPiece": "e2",
+    "hintTarget": "e6",
+    "hintText": "Notice how the a3-bishop controls f8 and the light squares. How can you expose Black's King?",
+    "explanation": {
+      "concept": "Light-Square Diagonal Mate",
+      "blunder": "Black played 9...b6 without castling, fatally weakening the e6 square.",
+      "takeaway": "Alexander Alekhine struck with 10.Qxe6+!! After fxe6, White delivers Bg6# because Ba3 cuts off the King's escape to f8."
+    }
+  },
+  {
+    "id": "puzzle-18",
+    "title": "Capablanca's Deflection (vs Fonaroff, 1918)",
+    "rating": 1650,
+    "theme": "Deflection",
+    "difficulty": "intermediate",
+    "turn": "w",
+    "fen": "5rk1/ppq2ppp/2p5/4bN2/4P3/6Q1/PPP2PPP/3R2K1 w - - 0 20",
+    "moves": [
+      "Nh6+",
+      "Kh8",
+      "Qxe5",
+      "Qxe5",
+      "Nxf7+",
+      "Rxf7",
+      "Rd8+",
+      "Rf8",
+      "Rxf8#"
+    ],
+    "hintPiece": "f5",
+    "hintTarget": "h6",
+    "hintText": "Capablanca uses an intermediate check to decoy the enemy King, then unleashes a back-rank deflection.",
+    "explanation": {
+      "concept": "Zwischenzug (In-between Check) & Back-Rank Deflection",
+      "blunder": "Black placed their bishop on e5 expecting a queen trade, ignoring the overloaded f7 pawn.",
+      "takeaway": "Capablanca systematically peeled off defenders: 20.Nh6+ Kh8 21.Qxe5! Qxe5 22.Nxf7+! fork forces the rook away, leaving d8 undefended."
+    }
+  },
+  {
+    "id": "puzzle-19",
+    "title": "The Siberian Trap (Smith-Morra Gambit)",
+    "rating": 1350,
+    "theme": "Checkmate",
+    "difficulty": "intermediate",
+    "turn": "b",
+    "fen": "r1b1kb1r/ppqp1ppp/2n1p3/8/2B1P1n1/2N2N1P/PP2QPP1/R1B2RK1 b kq - 0 9",
+    "moves": [
+      "Nd4",
+      "Nxd4",
+      "Qh2#"
+    ],
+    "hintPiece": "c6",
+    "hintTarget": "d4",
+    "hintText": "Jump your knight into the center to deflect White's f3 knight from defending h2.",
+    "explanation": {
+      "concept": "Removing the Guard & Battery Mate",
+      "blunder": "White pushed 9.h3 hoping to kick the g4 knight, ignoring Black's queen and knight battery aimed at h2.",
+      "takeaway": "9...Nd4! attacks the white Queen while simultaneously threatening Qh2#. If White captures 10.Nxd4, 10...Qh2# is instant mate."
+    }
+  },
+  {
+    "id": "puzzle-20",
+    "title": "Blackburne Shilling Smothered Mate",
+    "rating": 1100,
+    "theme": "Smothered Mate",
+    "difficulty": "beginner",
+    "turn": "b",
+    "fen": "r1b1kbnr/pppp1Npp/8/8/3nq3/8/PPPPBP1P/RNBQKR2 b Qkq - 1 7",
+    "moves": [
+      "Nf3#"
+    ],
+    "hintPiece": "d4",
+    "hintTarget": "f3",
+    "hintText": "The White bishop on e2 is pinned to the King by your Queen. Can you jump a knight into the heart of their camp?",
+    "explanation": {
+      "concept": "Absolute Pin into Smothered Mate",
+      "blunder": "White blocked check with 7.Be2, leaving the bishop immobilized by Black's e4 Queen.",
+      "takeaway": "A pinned piece cannot move or capture. Black's knight hops to f3 delivering checkmate, as 8.Bxf3 is strictly illegal."
+    }
+  },
+  {
+    "id": "puzzle-21",
+    "title": "The Halosar Trap (Blackmar-Diemer)",
+    "rating": 1180,
+    "theme": "Checkmate",
+    "difficulty": "beginner",
+    "turn": "w",
+    "fen": "rn2kb1r/ppp1pppp/5n2/8/1q4b1/2N1BQ2/PPP3PP/2KR1BNR w kq - 4 8",
+    "moves": [
+      "Nb5",
+      "Bxf3",
+      "Nxc7#"
+    ],
+    "hintPiece": "c3",
+    "hintTarget": "b5",
+    "hintText": "Black's Queen and bishop are targeting your Queen. Threaten something even more lethal on c7!",
+    "explanation": {
+      "concept": "Counter-Threat Checkmate & Poisoned Queen",
+      "blunder": "Black greedily took the Queen with 8...Bxf3, unaware of the unstoppable mate on c7.",
+      "takeaway": "Checkmate ends the game. 8.Nb5! threatens 9.Nxc7# instantly; Black captures White's Queen, but 9.Nxc7# ends the game on the spot."
+    }
+  },
+  {
+    "id": "puzzle-22",
+    "title": "The Windmill (Torre vs Lasker, 1925)",
+    "rating": 2200,
+    "theme": "Discovered Attack",
+    "difficulty": "master",
+    "turn": "w",
+    "fen": "r3rnk1/pb3pp1/3pp2p/1q4BQ/1P1P4/4N1R1/P4PPP/4R1K1 w - - 4 25",
+    "moves": [
+      "Bf6",
+      "Qxh5",
+      "Rxg7+",
+      "Kh8",
+      "Rxf7+",
+      "Kg8",
+      "Rg7+",
+      "Kh8",
+      "Rxb7+"
+    ],
+    "hintPiece": "g5",
+    "hintTarget": "f6",
+    "hintText": "Carlos Torre placed his bishop on f6, inviting Lasker to take the Queen and initiating the famous windmill.",
+    "explanation": {
+      "concept": "The Classic Windmill Mechanism",
+      "blunder": "Black's Queen accepted the White Queen on h5, stepping into a perpetual discovered check conveyor belt.",
+      "takeaway": "The windmill is one of chess's most devastating geometries: alternate discovered checks paralyze the enemy king while cleaning off the board."
+    }
+  },
+  {
+    "id": "puzzle-23",
+    "title": "Réti's Double Check Mate (vs Tartakower, 1910)",
+    "rating": 1600,
+    "theme": "Double Check",
+    "difficulty": "intermediate",
+    "turn": "w",
+    "fen": "rnb1kb1r/pp3ppp/2p5/4q3/4n3/3Q4/PPPB1PPP/2KR1BNR w kq - 0 9",
+    "moves": [
+      "Qd8+",
+      "Kxd8",
+      "Bg5+",
+      "Kc7",
+      "Bd8#"
+    ],
+    "hintPiece": "d3",
+    "hintTarget": "d8",
+    "hintText": "Sacrifice your Queen on d8 to draw the Black King into a double check from bishop and rook.",
+    "explanation": {
+      "concept": "Queen Decoy into Double Check",
+      "blunder": "Black captured 8...Nxe4 with an uncastled King exposed on the open d-file.",
+      "takeaway": "9.Qd8+!! forces Kxd8, leading to 10.Bg5+!! When in double check, the king MUST move — Black cannot block or capture, ending in 11.Bd8#."
+    }
+  },
+  {
+    "id": "puzzle-24",
+    "title": "The Polish Immortal (Najdorf vs Glücksberg, 1929)",
+    "rating": 2200,
+    "theme": "Checkmate",
+    "difficulty": "master",
+    "turn": "b",
+    "fen": "r1b2rk1/pp4pp/2p3n1/3p2N1/2P2P2/3B1KP1/PP5q/R1BQ1RN1 b - - 0 20",
+    "moves": [
+      "Bg4+",
+      "Kxg4",
+      "Ne5+",
+      "fxe5",
+      "h5#"
+    ],
+    "hintPiece": "c8",
+    "hintTarget": "g4",
+    "hintText": "Playing as Miguel Najdorf: sacrifice your bishop and knight to lure the enemy King into an inescapable pawn mating net.",
+    "explanation": {
+      "concept": "King Hunt & Four Minor Piece Sacrifices",
+      "blunder": "White king walked out into the center expecting to survive, completely trapped in Black's mating web.",
+      "takeaway": "Najdorf sacrificed all four minor pieces in this game. 20...Bg4+! 21.Kxg4 Ne5+! 22.fxe5 h5# delivers a breathtaking pawn checkmate."
+    }
+  },
+  {
+    "id": "puzzle-25",
+    "title": "The Epaulette Checkmate",
+    "rating": 1050,
+    "theme": "Checkmate",
+    "difficulty": "beginner",
+    "turn": "w",
+    "fen": "3rkr2/8/8/8/8/8/4Q3/6K1 w - - 0 1",
+    "moves": [
+      "Qe6#"
+    ],
+    "hintPiece": "e2",
+    "hintTarget": "e6",
+    "hintText": "Black's King is flanked on both sides by its own rooks, like shoulders with epaulettes.",
+    "explanation": {
+      "concept": "Epaulette Mate Geometry",
+      "blunder": "Black placed both rooks on d8 and f8, blocking their own King's lateral escape squares.",
+      "takeaway": "When the defending king's escape squares on both flanks are blocked by friendly pieces, a direct frontal queen check on e6 delivers instant mate."
+    }
+  },
+  {
+    "id": "puzzle-26",
+    "title": "Arabian Hook Mate",
+    "rating": 1250,
+    "theme": "Checkmate",
+    "difficulty": "beginner",
+    "turn": "w",
+    "fen": "5r1k/1R5p/5N2/8/8/8/8/7K w - - 0 1",
+    "moves": [
+      "Rxh7#"
+    ],
+    "hintPiece": "b7",
+    "hintTarget": "h7",
+    "hintText": "The knight on f6 covers g8 and protects the h7 square. Where should your rook deliver the final blow?",
+    "explanation": {
+      "concept": "The Historic Arabian Mate Pattern",
+      "blunder": "Black failed to defend h7 while White's knight occupied the dominant f6 outpost.",
+      "takeaway": "The Arabian Mate is one of the oldest recorded checkmate patterns in chess history: knight on f6 shields the rook on h7 while sealing the g8 escape."
     }
   }
 ]

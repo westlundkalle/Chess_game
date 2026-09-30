@@ -408,7 +408,15 @@ export default function PracticeModePage() {
   const playerSide = currentPuzzle?.turn === 'w' ? 'white' : 'black';
   const isMyTurn = currentTurn === playerSide;
 
-  const themesList = ['All', 'Checkmate', 'Deflection', 'Fork', 'Skewer', 'Sacrifice', 'Smothered Mate'];
+  const themesList = useMemo(() => {
+    const list = ['All'];
+    puzzlesData.forEach((p) => {
+      if (p.theme && !list.includes(p.theme)) {
+        list.push(p.theme);
+      }
+    });
+    return list;
+  }, []);
   const diffList = [
     { label: 'All Levels', value: 'All' },
     { label: 'Beginner (1000-1200)', value: 'beginner' },
