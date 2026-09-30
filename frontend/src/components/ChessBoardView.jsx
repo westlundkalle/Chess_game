@@ -9,7 +9,8 @@ export default function ChessBoardView({
   isCheck = false,
   turn = 'white',
   lastMove = null,
-  chessInstance = null
+  chessInstance = null,
+  hintStyles = {}
 }) {
   const [selectedSquare, setSelectedSquare] = useState(null);
 
@@ -29,9 +30,9 @@ export default function ChessBoardView({
     return styles;
   }, [chessInstance, selectedSquare]);
 
-  // Combine square styles (selected square, legal dots, last move, and check)
+  // Combine square styles (selected square, legal dots, last move, check, and hintStyles)
   const customSquareStyles = useMemo(() => {
-    const styles = { ...legalMoveSquares };
+    const styles = { ...legalMoveSquares, ...hintStyles };
 
     // Highlight last move
     if (lastMove) {

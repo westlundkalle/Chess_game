@@ -4,79 +4,143 @@
     "title": "Back-Rank Checkmate",
     "rating": 1000,
     "theme": "Checkmate",
+    "difficulty": "beginner",
     "turn": "w",
     "fen": "6k1/5ppp/8/8/8/8/4QPPP/6K1 w - - 0 1",
     "moves": ["Qe8#"],
-    "description": "Black's king is trapped behind their own pawns. Deliver the decisive back-rank checkmate in one move!"
+    "hintPiece": "e2",
+    "hintTarget": "e8",
+    "hintText": "Look at Black's back rank. Their King is trapped behind their own pawns.",
+    "explanation": {
+      "concept": "Classic Back-Rank Mate",
+      "blunder": "Black neglected to push h6 or g6 to give their King a retreat square ('luft').",
+      "takeaway": "Always keep an eye on unprotected back ranks. A single major piece can deliver instant mate if the king has no escape."
+    }
   },
   {
     "id": "puzzle-2",
     "title": "Decisive Overload",
     "rating": 1150,
     "theme": "Deflection",
+    "difficulty": "beginner",
     "turn": "w",
     "fen": "r5k1/5ppp/8/8/8/8/4QPPP/4R1K1 w - - 0 1",
     "moves": ["Qe8+", "Rxe8", "Rxe8#"],
-    "description": "Black has one rook guarding the back rank. Overload the defender with an aggressive Queen sacrifice to deliver mate!"
+    "hintPiece": "e2",
+    "hintTarget": "e8",
+    "hintText": "Black has one rook guarding e8. Can you overload or deflect it?",
+    "explanation": {
+      "concept": "Deflection & Overload",
+      "blunder": "Black relied on a single rook on a8 to defend against both the Queen and the Rook.",
+      "takeaway": "When a defending piece has more than one obligation, a sacrifice can drag it away, allowing your second attacker to deliver mate."
+    }
   },
   {
     "id": "puzzle-3",
     "title": "The Royal Knight Fork",
     "rating": 1300,
     "theme": "Fork",
+    "difficulty": "intermediate",
     "turn": "w",
     "fen": "2r3k1/5ppp/8/3N4/8/8/5PPP/6K1 w - - 0 1",
     "moves": ["Ne7+", "Kf8", "Nxc8"],
-    "description": "White's knight has a devastating fork square that attacks both the black king and undefended rook on c8."
+    "hintPiece": "d5",
+    "hintTarget": "e7",
+    "hintText": "Your knight can jump to a square that attacks both the King and the unprotected rook.",
+    "explanation": {
+      "concept": "Knight Double Attack (Fork)",
+      "blunder": "Black left the c8-rook unprotected while their King sat on g8 without escape from e7 checks.",
+      "takeaway": "Knights are dangerous leapers. Whenever an enemy piece is undefended, calculate if a knight check can simultaneously attack it."
+    }
   },
   {
     "id": "puzzle-4",
     "title": "Absolute Rook Skewer",
     "rating": 1400,
     "theme": "Skewer",
+    "difficulty": "intermediate",
     "turn": "w",
     "fen": "4r3/8/8/4k3/8/8/8/R5K1 w - - 0 1",
     "moves": ["Re1+", "Kd6", "Rxe8"],
-    "description": "Check Black's exposed king along the open e-file to force it away and win the stranded rook behind it!"
+    "hintPiece": "a1",
+    "hintTarget": "e1",
+    "hintText": "Can you check the King along an open file where the enemy rook is directly behind it?",
+    "explanation": {
+      "concept": "Linear Skewer Tactic",
+      "blunder": "Black lined up their valuable King directly in front of their undefended Rook on the e-file.",
+      "takeaway": "A skewer attacks a more valuable piece (the King) that must move, leaving the piece behind it exposed to capture."
+    }
   },
   {
     "id": "puzzle-5",
     "title": "Morphy's Opera Deflection",
     "rating": 1650,
     "theme": "Deflection",
+    "difficulty": "intermediate",
     "turn": "w",
     "fen": "4kb1r/p2n1ppp/4q3/4p1B1/4P3/1Q6/PPP2PPP/2KR4 w k - 0 1",
     "moves": ["Qb8+", "Nxb8", "Rd8#"],
-    "description": "Inspired by Paul Morphy's 1858 Opera game: Queen sacrifice deflecting the knight to deliver back-rank mate with the rook!"
+    "hintPiece": "b3",
+    "hintTarget": "b8",
+    "hintText": "The d7 knight is the only piece stopping Rd8 mate. How do you remove or deflect it?",
+    "explanation": {
+      "concept": "Decoy & Back-Rank Domination",
+      "blunder": "Black left their King stuck in the center without castling, guarded only by the knight on d7.",
+      "takeaway": "Paul Morphy demonstrated that time and development trump material. Sacrificing the Queen to remove the defender ends the game immediately."
+    }
   },
   {
     "id": "puzzle-6",
     "title": "Boden's Mate Theme",
     "rating": 1800,
     "theme": "Sacrifice",
+    "difficulty": "master",
     "turn": "w",
     "fen": "2kr3r/pp1n1ppp/2p1p3/8/1b1P1B2/3B1Q1P/PPP2PP1/R4RK1 w - - 0 1",
     "moves": ["Qxc6+", "bxc6", "Ba6#"],
-    "description": "Sacrifice the Queen on c6 to shatter the pawn shield and deliver checkmate with criss-crossing bishops!"
+    "hintPiece": "f3",
+    "hintTarget": "c6",
+    "hintText": "Look at the criss-crossing bishop diagonals towards Black's queenside King.",
+    "explanation": {
+      "concept": "Criss-Crossing Bishop Mate (Boden's Mate)",
+      "blunder": "Black's c6 and d7 pawns blocked their own king's flight paths, while two enemy bishops dominated the diagonals.",
+      "takeaway": "Pairs of bishops cutting across an open king's position are deadly. Sacrificing a queen on c6 completely breaks open the diagonal for Ba6#."
+    }
   },
   {
     "id": "puzzle-7",
     "title": "Philidor's Smothered Mate",
     "rating": 1950,
     "theme": "Smothered Mate",
+    "difficulty": "master",
     "turn": "w",
     "fen": "5r1k/6pp/7N/8/8/1Q6/6PP/7K w - - 0 1",
     "moves": ["Qg8+", "Rxg8", "Nf7#"],
-    "description": "Deliver a queen sacrifice check on g8 that forces the rook to smother its own king, setting up the knight checkmate!"
+    "hintPiece": "b3",
+    "hintTarget": "g8",
+    "hintText": "Force Black's own rook to surround and trap its King.",
+    "explanation": {
+      "concept": "Smothered Mate via Decoy Sacrifice",
+      "blunder": "Black allowed White's knight to control the f7 escape square while the Queen aimed directly at g8.",
+      "takeaway": "When an enemy king is hemmed in by its own pawns, sacrifice your queen with check to force their rook to block the king's last exit, setting up a knight mate."
+    }
   },
   {
     "id": "puzzle-8",
     "title": "Anastasia's Mate",
     "rating": 2100,
     "theme": "Checkmate",
+    "difficulty": "master",
     "turn": "w",
     "fen": "5r1k/4N1pp/8/7Q/8/R7/5PPP/7K w - - 0 1",
     "moves": ["Qxh7+", "Kxh7", "Rh3#"],
-    "description": "The knight on e7 clamps down on the escape squares. Sacrifice the Queen on h7 to open the file for a lethal rook mate!"
+    "hintPiece": "h5",
+    "hintTarget": "h7",
+    "hintText": "The knight on e7 walls off g8 and g6. How do you open the h-file for your rook?",
+    "explanation": {
+      "concept": "Anastasia's Mate Pattern",
+      "blunder": "Black gave up the e7 outpost to White's knight, which created a lethal barrier trapping the King against the board edge.",
+      "takeaway": "Knight on e7 + open h-file rook is an unstoppable checkmate pattern. Sacrificing the Queen to pry open the file finishes the combination."
+    }
   }
 ]
