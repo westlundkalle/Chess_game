@@ -30,8 +30,20 @@ import {
   Eye,
   Play,
   Pause,
-  Clock
+  Clock,
+  Shuffle,
+  Dices
 } from 'lucide-react';
+
+// Fisher-Yates shuffle algorithm for unbiassed puzzle randomization
+function shuffleArray(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
 
 export default function PracticeModePage() {
   // Mode selection: 'training' | 'rush' | 'survival'
@@ -41,7 +53,7 @@ export default function PracticeModePage() {
   const [selectedTheme, setSelectedTheme] = useState('All');
   const [selectedDifficulty, setSelectedDifficulty] = useState('All');
 
-  // Filtered puzzle collection
+  // Filtered puzzle collection for Training mode
   const filteredPuzzles = useMemo(() => {
     return puzzlesData.filter((p) => {
       const matchTheme = selectedTheme === 'All' || p.theme === selectedTheme;
@@ -51,7 +63,36 @@ export default function PracticeModePage() {
   }, [selectedTheme, selectedDifficulty]);
 
   const [puzzleIndex, setPuzzleIndex] = useState(0);
-  const currentPuzzle = filteredPuzzles[puzzleIndex] || puzzlesData[0];
+
+  // Difficulty settings for 3-Min Rush & Survival ('all' | 'beginner' | 'intermediate' | 'master')
+  const [rushDifficulty, setRushDifficulty] = useState('all');
+  const [survivalDifficulty, setSurvivalDifficulty] = useState('all');
+
+  // Helper to fetch difficulty-specific best records from localStorage
+  const getRushBest = (diff) => {
+    return parseInt(localStorage.getItem(`chess_rush_best_${diff}`) || localStorage.getItem('chess_rush_best') || '0', 10);
+  };
+  const getSurvivalBest = (diff) => {
+    return parseInt(localStorage.getItem(`chess_survival_best_${diff}`) || localStorage.getItem('chess_survival_best') || '0', 10);
+  };
+
+  // Randomized queues for Rush & Survival
+  const [rushQueue, setRushQueue] = useState(() => shuffleArray(puzzlesData));
+  const [rushQueueIndex, setRushQueueIndex] = useState(0);
+
+  const [survivalQueue, setSurvivalQueue] = useState(() => shuffleArray(puzzlesData));
+  const [survivalQueueIndex, setSurvivalQueueIndex] = useState(0);
+
+  // Active puzzle based on current mode
+  const currentPuzzle = useMemo(() => {
+    if (activeMode === 'rush') {
+      return rushQueue[rushQueueIndex] || puzzlesData[0];
+    }
+    if (activeMode === 'survival') {
+      return survivalQueue[survivalQueueIndex] || puzzlesData[0];
+    }
+    return filteredPuzzles[puzzleIndex] || puzzlesData[0];
+  }, [activeMode, rushQueue, rushQueueIndex, survivalQueue, survivalQueueIndex, filteredPuzzles, puzzleIndex]);
 
   // Board and puzzle progression states
   const [game, setGame] = useState(() => new Chess(currentPuzzle.fen));
@@ -81,16 +122,12 @@ export default function PracticeModePage() {
   // Feature 1: Rush & Survival Game States
   const [rushTimeLeft, setRushTimeLeft] = useState(180); // 3 minutes
   const [rushScore, setRushScore] = useState(0);
-  const [rushBest, setRushBest] = useState(() => {
-    return parseInt(localStorage.getItem('chess_rush_best') || '0', 10);
-  });
+  const [rushBest, setRushBest] = useState(() => getRushBest('all'));
   const [isRushActive, setIsRushActive] = useState(false);
 
   const [survivalLives, setSurvivalLives] = useState(3);
   const [survivalScore, setSurvivalScore] = useState(0);
-  const [survivalBest, setSurvivalBest] = useState(() => {
-    return parseInt(localStorage.getItem('chess_survival_best') || '0', 10);
-  });
+  const [survivalBest, setSurvivalBest] = useState(() => getSurvivalBest('all'));
   const [isSurvivalActive, setIsSurvivalActive] = useState(false);
   const [rushGameOver, setRushGameOver] = useState(false);
 
@@ -309,6 +346,7 @@ export default function PracticeModePage() {
         setRushScore(newScore);
         if (newScore > rushBest) {
           setRushBest(newScore);
+          localStorage.setItem(`chess_rush_best_${rushDifficulty}`, newScore.toString());
           localStorage.setItem('chess_rush_best', newScore.toString());
         }
         setTimeout(() => advanceToNextPuzzle(), 450);
@@ -317,6 +355,7 @@ export default function PracticeModePage() {
         setSurvivalScore(newScore);
         if (newScore > survivalBest) {
           setSurvivalBest(newScore);
+          localStorage.setItem(`chess_survival_best_${survivalDifficulty}`, newScore.toString());
           localStorage.setItem('chess_survival_best', newScore.toString());
         }
         setTimeout(() => advanceToNextPuzzle(), 450);
@@ -366,11 +405,43 @@ export default function PracticeModePage() {
 
   const advanceToNextPuzzle = () => {
     setIsAnalyzing(false);
-    if (puzzleIndex < filteredPuzzles.length - 1) {
-      setPuzzleIndex(puzzleIndex + 1);
+    if (activeMode === 'rush') {
+      setRushQueueIndex((prev) => {
+        const next = prev + 1;
+        if (next >= rushQueue.length) {
+          const pool = rushDifficulty === 'all' ? puzzlesData : puzzlesData.filter((p) => p.difficulty === rushDifficulty);
+          setRushQueue(shuffleArray(pool));
+          return 0;
+        }
+        return next;
+      });
+    } else if (activeMode === 'survival') {
+      setSurvivalQueueIndex((prev) => {
+        const next = prev + 1;
+        if (next >= survivalQueue.length) {
+          const pool = survivalDifficulty === 'all' ? puzzlesData : puzzlesData.filter((p) => p.difficulty === survivalDifficulty);
+          setSurvivalQueue(shuffleArray(pool));
+          return 0;
+        }
+        return next;
+      });
     } else {
-      setPuzzleIndex(0);
+      if (puzzleIndex < filteredPuzzles.length - 1) {
+        setPuzzleIndex(puzzleIndex + 1);
+      } else {
+        setPuzzleIndex(0);
+      }
     }
+  };
+
+  const handlePickRandomTrainingPuzzle = () => {
+    setIsAnalyzing(false);
+    if (filteredPuzzles.length <= 1) return;
+    let nextIdx;
+    do {
+      nextIdx = Math.floor(Math.random() * filteredPuzzles.length);
+    } while (nextIdx === puzzleIndex);
+    setPuzzleIndex(nextIdx);
   };
 
   const handleResetPuzzle = () => {
@@ -450,37 +521,131 @@ export default function PracticeModePage() {
   };
 
   // Start Rush Mode (ready state: wait for player to click start or make first move)
-  const startRushMode = () => {
+  const startRushMode = (diff = rushDifficulty) => {
     setActiveMode('rush');
+    const pool = diff === 'all' ? puzzlesData : puzzlesData.filter((p) => p.difficulty === diff);
+    const shuffled = shuffleArray(pool);
+    setRushQueue(shuffled);
+    setRushQueueIndex(0);
     setRushTimeLeft(180);
     setRushScore(0);
     setIsRushActive(false);
     setRushGameOver(false);
-    setPuzzleIndex(0);
+    setRushBest(getRushBest(diff));
   };
 
   // Restart Rush Run
   const handleRestartRush = () => {
+    const pool = rushDifficulty === 'all' ? puzzlesData : puzzlesData.filter((p) => p.difficulty === rushDifficulty);
+    const shuffled = shuffleArray(pool);
+    setRushQueue(shuffled);
+    setRushQueueIndex(0);
     setRushTimeLeft(180);
     setRushScore(0);
     setIsRushActive(false);
     setRushGameOver(false);
-    setPuzzleIndex(0);
     setStatusMessage({
       type: 'hint',
-      text: 'Rush reset. The timer will start on your first move or when you click Start Timer.'
+      text: 'Rush deck randomized! Timer will start on your first move or when you click Start Timer.'
+    });
+  };
+
+  // Change Rush Difficulty
+  const handleRushDifficultyChange = (newDiff) => {
+    setRushDifficulty(newDiff);
+    setRushBest(getRushBest(newDiff));
+    const pool = newDiff === 'all' ? puzzlesData : puzzlesData.filter((p) => p.difficulty === newDiff);
+    const shuffled = shuffleArray(pool);
+    setRushQueue(shuffled);
+    setRushQueueIndex(0);
+    setRushTimeLeft(180);
+    setRushScore(0);
+    setIsRushActive(false);
+    setRushGameOver(false);
+    setStatusMessage({
+      type: 'hint',
+      text: `Rush difficulty set to ${newDiff.toUpperCase()}. Puzzle order randomized!`
+    });
+  };
+
+  // Reshuffle Rush deck on demand
+  const handleReshuffleRush = () => {
+    const pool = rushDifficulty === 'all' ? puzzlesData : puzzlesData.filter((p) => p.difficulty === rushDifficulty);
+    const shuffled = shuffleArray(pool);
+    setRushQueue(shuffled);
+    setRushQueueIndex(0);
+    setStatusMessage({
+      type: 'hint',
+      text: '🎲 Rush puzzle order reshuffled!'
     });
   };
 
   // Start Survival Mode
-  const startSurvivalMode = () => {
+  const startSurvivalMode = (diff = survivalDifficulty) => {
     setActiveMode('survival');
+    const pool = diff === 'all' ? puzzlesData : puzzlesData.filter((p) => p.difficulty === diff);
+    const shuffled = shuffleArray(pool);
+    setSurvivalQueue(shuffled);
+    setSurvivalQueueIndex(0);
     setSurvivalLives(3);
     setSurvivalScore(0);
     setIsSurvivalActive(true);
     setRushGameOver(false);
-    setPuzzleIndex(0);
+    setSurvivalBest(getSurvivalBest(diff));
   };
+
+  // Restart Survival Run
+  const handleRestartSurvival = () => {
+    const pool = survivalDifficulty === 'all' ? puzzlesData : puzzlesData.filter((p) => p.difficulty === survivalDifficulty);
+    const shuffled = shuffleArray(pool);
+    setSurvivalQueue(shuffled);
+    setSurvivalQueueIndex(0);
+    setSurvivalLives(3);
+    setSurvivalScore(0);
+    setIsSurvivalActive(true);
+    setRushGameOver(false);
+    setStatusMessage({
+      type: 'hint',
+      text: 'Survival deck randomized with 3 fresh lives!'
+    });
+  };
+
+  // Change Survival Difficulty
+  const handleSurvivalDifficultyChange = (newDiff) => {
+    setSurvivalDifficulty(newDiff);
+    setSurvivalBest(getSurvivalBest(newDiff));
+    const pool = newDiff === 'all' ? puzzlesData : puzzlesData.filter((p) => p.difficulty === newDiff);
+    const shuffled = shuffleArray(pool);
+    setSurvivalQueue(shuffled);
+    setSurvivalQueueIndex(0);
+    setSurvivalLives(3);
+    setSurvivalScore(0);
+    setIsSurvivalActive(true);
+    setRushGameOver(false);
+    setStatusMessage({
+      type: 'hint',
+      text: `Survival difficulty set to ${newDiff.toUpperCase()}. Puzzle deck randomized!`
+    });
+  };
+
+  // Reshuffle Survival deck on demand
+  const handleReshuffleSurvival = () => {
+    const pool = survivalDifficulty === 'all' ? puzzlesData : puzzlesData.filter((p) => p.difficulty === survivalDifficulty);
+    const shuffled = shuffleArray(pool);
+    setSurvivalQueue(shuffled);
+    setSurvivalQueueIndex(0);
+    setStatusMessage({
+      type: 'hint',
+      text: '🎲 Survival puzzle deck reshuffled!'
+    });
+  };
+
+  const diffOptions = useMemo(() => [
+    { label: 'All Levels', value: 'all', count: puzzlesData.length },
+    { label: 'Beginner', value: 'beginner', count: puzzlesData.filter((p) => p.difficulty === 'beginner').length },
+    { label: 'Intermediate', value: 'intermediate', count: puzzlesData.filter((p) => p.difficulty === 'intermediate').length },
+    { label: 'Master', value: 'master', count: puzzlesData.filter((p) => p.difficulty === 'master').length }
+  ], []);
 
   const currentTurn = game.turn() === 'w' ? 'white' : 'black';
   const playerSide = currentPuzzle?.turn === 'w' ? 'white' : 'black';
@@ -584,7 +749,7 @@ export default function PracticeModePage() {
                 {activeMode === 'rush' ? rushBest : activeMode === 'survival' ? survivalBest : filteredPuzzles.length}
               </div>
               <div className="text-[10px] text-slate-500 uppercase font-semibold">
-                {activeMode === 'rush' ? 'Best' : activeMode === 'survival' ? 'Record' : 'Puzzles'}
+                {activeMode === 'rush' ? `Best (${rushDifficulty})` : activeMode === 'survival' ? `Record (${survivalDifficulty})` : 'Puzzles'}
               </div>
             </div>
           </div>
@@ -617,6 +782,10 @@ export default function PracticeModePage() {
             {/* Mode-specific status */}
             {activeMode === 'rush' && (
               <div className="flex items-center gap-2">
+                <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                  <Dices className="w-3 h-3 text-emerald-400" />
+                  #{rushQueueIndex + 1}
+                </span>
                 {!isRushActive && !rushGameOver ? (
                   <button
                     onClick={() => setIsRushActive(true)}
@@ -654,6 +823,10 @@ export default function PracticeModePage() {
 
             {activeMode === 'survival' && (
               <div className="flex items-center gap-2">
+                <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                  <Dices className="w-3 h-3 text-emerald-400" />
+                  #{survivalQueueIndex + 1}
+                </span>
                 <div className="flex items-center gap-1">
                   {[1, 2, 3].map((heart) => (
                     <Heart
@@ -690,6 +863,14 @@ export default function PracticeModePage() {
                   title="Next Puzzle"
                 >
                   <ChevronRight className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={handlePickRandomTrainingPuzzle}
+                  className="flex items-center gap-1 p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 transition-colors ml-1"
+                  title="Pick a random puzzle"
+                >
+                  <Shuffle className="w-3.5 h-3.5" />
+                  <span className="text-[10px] font-bold hidden sm:inline">Random</span>
                 </button>
               </div>
             )}
@@ -782,39 +963,77 @@ export default function PracticeModePage() {
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
             <h4 className="text-xs font-semibold uppercase text-slate-400 mb-2">Controls & Hints</h4>
 
-            {/* Rush Mode Start / Control Widget */}
+            {/* Rush Mode Controls & Difficulty Widget */}
             {activeMode === 'rush' && (
-              <div className="mb-3 p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+              <div className="mb-3 p-3 rounded-xl bg-slate-950/80 border border-slate-800 space-y-3">
+                {/* Difficulty Selector */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[11px] font-semibold uppercase text-slate-400">
+                      Rush Difficulty:
+                    </span>
+                    <span className="text-[10px] text-amber-400 font-mono font-bold">
+                      Best: {rushBest}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-1">
+                    {diffOptions.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => handleRushDifficultyChange(opt.value)}
+                        className={`py-1.5 px-1 rounded-lg text-[10px] font-bold text-center transition-all ${
+                          rushDifficulty === opt.value
+                            ? 'bg-amber-500 text-slate-950 shadow-sm'
+                            : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                        }`}
+                      >
+                        <div>{opt.label.split(' ')[0]}</div>
+                        <div className="text-[9px] opacity-75">({opt.count})</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Randomizer Control */}
+                <div className="flex items-center justify-between pt-1 border-t border-slate-800/80">
+                  <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-medium">
+                    <Dices className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Randomizer: ON ({rushQueue.length} in pool)</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleReshuffleRush}
+                    className="flex items-center gap-1 text-[10px] px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+                    title="Reshuffle puzzle order"
+                  >
+                    <Shuffle className="w-3 h-3" />
+                    Reshuffle
+                  </button>
+                </div>
+
+                {/* Timer Controls */}
                 {!isRushActive && !rushGameOver ? (
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-                        <Clock className="w-4 h-4 text-amber-400" />
-                        3-Minute Rush Ready
-                      </span>
-                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                        3:00
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-400 mb-2.5">
-                      The timer starts on your <strong>first move</strong> on the board, or click below:
+                  <div className="pt-1">
+                    <p className="text-[11px] text-slate-400 mb-2">
+                      Timer starts on your <strong>first move</strong>, or click below:
                     </p>
                     <button
                       onClick={() => setIsRushActive(true)}
                       className="w-full py-2 px-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/20 transition-all cursor-pointer"
                     >
                       <Play className="w-4 h-4 fill-slate-950" />
-                      Start Timer Now
+                      Start Timer Now (3:00)
                     </button>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between pt-1">
                     <div>
                       <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
                         <Timer className="w-4 h-4 text-amber-400" />
                         Rush In Progress
                       </span>
-                      <p className="text-[10px] text-slate-400">Solve puzzles as fast as you can!</p>
+                      <p className="text-[10px] text-slate-400">Score: {rushScore} • {Math.floor(rushTimeLeft / 60)}:{(rushTimeLeft % 60).toString().padStart(2, '0')}</p>
                     </div>
                     <button
                       onClick={handleRestartRush}
@@ -824,6 +1043,80 @@ export default function PracticeModePage() {
                     </button>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Survival Mode Controls & Difficulty Widget */}
+            {activeMode === 'survival' && (
+              <div className="mb-3 p-3 rounded-xl bg-slate-950/80 border border-slate-800 space-y-3">
+                {/* Difficulty Selector */}
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[11px] font-semibold uppercase text-slate-400">
+                      Survival Difficulty:
+                    </span>
+                    <span className="text-[10px] text-rose-400 font-mono font-bold">
+                      Record: {survivalBest}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-1">
+                    {diffOptions.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => handleSurvivalDifficultyChange(opt.value)}
+                        className={`py-1.5 px-1 rounded-lg text-[10px] font-bold text-center transition-all ${
+                          survivalDifficulty === opt.value
+                            ? 'bg-rose-500 text-white shadow-sm'
+                            : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                        }`}
+                      >
+                        <div>{opt.label.split(' ')[0]}</div>
+                        <div className="text-[9px] opacity-75">({opt.count})</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Randomizer Control */}
+                <div className="flex items-center justify-between pt-1 border-t border-slate-800/80">
+                  <div className="flex items-center gap-1.5 text-[11px] text-emerald-400 font-medium">
+                    <Dices className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Randomizer: ON ({survivalQueue.length} in deck)</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleReshuffleSurvival}
+                    className="flex items-center gap-1 text-[10px] px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+                    title="Reshuffle puzzle deck"
+                  >
+                    <Shuffle className="w-3 h-3" />
+                    Reshuffle
+                  </button>
+                </div>
+
+                {/* Lives & Restart */}
+                <div className="flex items-center justify-between pt-1">
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3].map((heart) => (
+                      <Heart
+                        key={heart}
+                        className={`w-4 h-4 ${
+                          heart <= survivalLives ? 'text-rose-500 fill-rose-500' : 'text-slate-700'
+                        }`}
+                      />
+                    ))}
+                    <span className="text-xs font-bold text-white ml-1.5">
+                      {survivalLives} {survivalLives === 1 ? 'Life' : 'Lives'} Left
+                    </span>
+                  </div>
+                  <button
+                    onClick={handleRestartSurvival}
+                    className="text-[11px] px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold transition-colors"
+                  >
+                    Restart Run
+                  </button>
+                </div>
               </div>
             )}
 
@@ -978,11 +1271,11 @@ export default function PracticeModePage() {
         title={activeMode === 'rush' ? 'Rush Time Expired!' : 'Survival Run Ended!'}
         subtitle={
           activeMode === 'rush'
-            ? `You solved ${rushScore} tactical puzzles! Best Score: ${rushBest}`
-            : `You solved ${survivalScore} puzzles before running out of lives! Best: ${survivalBest}`
+            ? `You solved ${rushScore} tactical puzzles on ${rushDifficulty.toUpperCase()}! Best Score: ${rushBest}`
+            : `You solved ${survivalScore} puzzles on ${survivalDifficulty.toUpperCase()}! Record: ${survivalBest}`
         }
         isWinner={activeMode === 'rush' ? rushScore >= 5 : survivalScore >= 5}
-        onPlayAgain={activeMode === 'rush' ? startRushMode : startSurvivalMode}
+        onPlayAgain={activeMode === 'rush' ? () => startRushMode(rushDifficulty) : () => startSurvivalMode(survivalDifficulty)}
       />
     </div>
   );
