@@ -75,7 +75,8 @@ export default function PracticeModePage() {
 
   // Feature 5: Analyze with Stockfish
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const { isReady, isThinking, evalScore, getAiMove } = useStockfish('grandmaster');
+  const { isReady, isThinking, evalScore, bestMove, getAiMove } = useStockfish('grandmaster');
+  const analysisSnapshotRef = useRef(null);
 
   // Feature 1: Rush & Survival Game States
   const [rushTimeLeft, setRushTimeLeft] = useState(180); // 3 minutes
@@ -125,14 +126,16 @@ export default function PracticeModePage() {
     setLastMove(null);
     setHintStage(0);
     setEloDelta(null);
+    setIsAnalyzing(false);
+    analysisSnapshotRef.current = null;
   }, [puzzleIndex, currentPuzzle]);
 
   // Request Stockfish live evaluation when analysis mode is active
   useEffect(() => {
     if (isAnalyzing && isReady) {
-      getAiMove(fen, () => {});
+      getAiMove(fen);
     }
-  }, [isAnalyzing, fen, isReady]);
+  }, [isAnalyzing, fen, isReady, getAiMove]);
 
   // ELO calculation formula
   const updateElo = (solved) => {
@@ -193,16 +196,19 @@ export default function PracticeModePage() {
 
   // Handle player attempt on the chessboard
   const handlePlayerMove = (move) => {
-    if (isSolved) return false;
+    if (isSolved && !isAnalyzing) return false;
 
     // In Analysis mode, allow free board exploration
     if (isAnalyzing) {
       try {
-        const res = game.move(move);
+        const tempGame = new Chess(game.fen());
+        const res = tempGame.move(move);
         if (res) {
-          setFen(game.fen());
+          setGame(tempGame);
+          setFen(tempGame.fen());
           setLastMove({ from: res.from, to: res.to });
           playMoveSound(res.captured ? 'capture' : 'move');
+          getAiMove(tempGame.fen());
           return true;
         }
       } catch {
@@ -266,12 +272,14 @@ export default function PracticeModePage() {
       return false;
     }
 
-    // Correct Move!
-    game.move(move);
-    setFen(game.fen());
+    // Correct Move! Create fresh Chess instance
+    const updatedGame = new Chess(game.fen());
+    updatedGame.move(move);
+    setGame(updatedGame);
+    setFen(updatedGame.fen());
     setLastMove({ from: playedMove.from, to: playedMove.to });
 
-    if (game.inCheck()) {
+    if (updatedGame.inCheck()) {
       playMoveSound('check');
     } else if (playedMove.captured) {
       playMoveSound('capture');
@@ -327,13 +335,15 @@ export default function PracticeModePage() {
     const opponentMoveSan = currentPuzzle.moves[nextStep];
     setTimeout(() => {
       try {
-        const oppResult = game.move(opponentMoveSan);
+        const nextGame = new Chess(updatedGame.fen());
+        const oppResult = nextGame.move(opponentMoveSan);
         if (oppResult) {
-          setFen(game.fen());
+          setGame(nextGame);
+          setFen(nextGame.fen());
           setLastMove({ from: oppResult.from, to: oppResult.to });
           setMoveStepIndex(nextStep + 1);
 
-          if (game.inCheck()) {
+          if (nextGame.inCheck()) {
             playMoveSound('check');
           } else if (oppResult.captured) {
             playMoveSound('capture');
@@ -355,6 +365,7 @@ export default function PracticeModePage() {
   };
 
   const advanceToNextPuzzle = () => {
+    setIsAnalyzing(false);
     if (puzzleIndex < filteredPuzzles.length - 1) {
       setPuzzleIndex(puzzleIndex + 1);
     } else {
@@ -363,6 +374,7 @@ export default function PracticeModePage() {
   };
 
   const handleResetPuzzle = () => {
+    setIsAnalyzing(false);
     const newGame = new Chess(currentPuzzle.fen);
     setGame(newGame);
     setFen(currentPuzzle.fen);
@@ -371,19 +383,64 @@ export default function PracticeModePage() {
     setIsSolved(false);
     setLastMove(null);
     setHintStage(0);
-    setIsAnalyzing(false);
   };
 
   const handleNextPuzzle = () => {
+    setIsAnalyzing(false);
     if (puzzleIndex < filteredPuzzles.length - 1) {
       setPuzzleIndex(puzzleIndex + 1);
+    } else {
+      setPuzzleIndex(0);
     }
   };
 
   const handlePrevPuzzle = () => {
+    setIsAnalyzing(false);
     if (puzzleIndex > 0) {
       setPuzzleIndex(puzzleIndex - 1);
     }
+  };
+
+  // Toggle Stockfish Analysis Mode
+  const handleToggleAnalysis = () => {
+    if (isAnalyzing) {
+      // Exit analysis mode: Restore board to current puzzle position
+      const snapshot = analysisSnapshotRef.current;
+      const targetFen = snapshot ? snapshot.fen : currentPuzzle.fen;
+      const targetStep = snapshot ? snapshot.moveStepIndex : 0;
+      const targetLastMove = snapshot ? snapshot.lastMove : null;
+
+      const restoredGame = new Chess(targetFen);
+      setGame(restoredGame);
+      setFen(targetFen);
+      setMoveStepIndex(targetStep);
+      setLastMove(targetLastMove);
+      setIsAnalyzing(false);
+      setStatusMessage({
+        type: 'hint',
+        text: 'Analysis closed. Puzzle resumed!'
+      });
+    } else {
+      // Enter analysis mode: Save current puzzle state
+      analysisSnapshotRef.current = {
+        fen: game.fen(),
+        moveStepIndex,
+        lastMove
+      };
+      setIsAnalyzing(true);
+      getAiMove(game.fen());
+    }
+  };
+
+  // Reset position inside analysis mode
+  const handleResetAnalysisPosition = () => {
+    const snapshot = analysisSnapshotRef.current;
+    const targetFen = snapshot ? snapshot.fen : currentPuzzle.fen;
+    const restoredGame = new Chess(targetFen);
+    setGame(restoredGame);
+    setFen(targetFen);
+    setLastMove(snapshot ? snapshot.lastMove : null);
+    getAiMove(targetFen);
   };
 
   const handleCycleHint = () => {
@@ -645,7 +702,7 @@ export default function PracticeModePage() {
             orientation={playerSide}
             disabled={!isMyTurn && !isAnalyzing}
             isCheck={game.inCheck()}
-            turn={currentTurn}
+            turn={isAnalyzing ? currentTurn : playerSide}
             lastMove={lastMove}
             chessInstance={game}
             hintStyles={hintStyles}
@@ -656,7 +713,7 @@ export default function PracticeModePage() {
             {/* Status notification */}
             {statusMessage ? (
               <div
-                className={`flex items-center gap-2.5 p-3 rounded-xl border text-sm font-medium animate-in fade-in duration-200 ${
+                className={`flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 rounded-xl border text-sm font-medium animate-in fade-in duration-200 ${
                   statusMessage.type === 'success'
                     ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
                     : statusMessage.type === 'error'
@@ -664,16 +721,28 @@ export default function PracticeModePage() {
                     : 'bg-amber-950/40 border-amber-500/40 text-amber-300'
                 }`}
               >
-                {statusMessage.type === 'success' && <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />}
-                {statusMessage.type === 'error' && <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />}
-                {statusMessage.type === 'hint' && <Sparkles className="w-5 h-5 text-amber-400 shrink-0" />}
-                <div className="flex-1">{statusMessage.text}</div>
+                <div className="flex items-center gap-2.5">
+                  {statusMessage.type === 'success' && <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />}
+                  {statusMessage.type === 'error' && <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0" />}
+                  {statusMessage.type === 'hint' && <Sparkles className="w-5 h-5 text-amber-400 shrink-0" />}
+                  <div>{statusMessage.text}</div>
+                </div>
+
                 {statusMessage.type === 'error' && (
                   <button
                     onClick={handleResetPuzzle}
-                    className="text-xs underline font-bold hover:text-white"
+                    className="text-xs underline font-bold hover:text-white shrink-0"
                   >
                     Try Again
+                  </button>
+                )}
+
+                {isSolved && activeMode === 'training' && (
+                  <button
+                    onClick={handleNextPuzzle}
+                    className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1 shadow-sm transition-all shrink-0 cursor-pointer"
+                  >
+                    Next Puzzle <ChevronRight className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>
@@ -779,7 +848,7 @@ export default function PracticeModePage() {
 
             {/* Feature 5: Analyze with Stockfish */}
             <button
-              onClick={() => setIsAnalyzing(!isAnalyzing)}
+              onClick={handleToggleAnalysis}
               className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-bold transition-all border ${
                 isAnalyzing
                   ? 'bg-blue-600 border-blue-500 text-white shadow-md shadow-blue-500/20'
@@ -787,20 +856,49 @@ export default function PracticeModePage() {
               }`}
             >
               <Brain className="w-4 h-4 text-blue-400" />
-              {isAnalyzing ? 'Exit Stockfish Analysis' : 'Analyze with Stockfish'}
+              {isAnalyzing ? 'Exit Stockfish Analysis (Resume Puzzle)' : 'Analyze with Stockfish'}
             </button>
 
             {isAnalyzing && (
-              <div className="mt-3 p-3 bg-slate-950 rounded-lg border border-slate-800 text-xs">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
-                  <span>Engine Evaluation:</span>
-                  <span className="font-mono font-bold text-amber-400">
-                    {evalScore !== null ? (evalScore > 0 ? `+${evalScore}` : evalScore) : 'Calculating...'}
+              <div className="mt-3 p-3 bg-slate-950 rounded-lg border border-blue-500/30 text-xs animate-in fade-in duration-150">
+                <div className="flex items-center justify-between text-slate-400 mb-1.5 pb-1.5 border-b border-slate-800">
+                  <span className="flex items-center gap-1.5 font-medium">
+                    <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    Engine Evaluation:
+                  </span>
+                  <span className="font-mono font-bold text-amber-400 text-sm">
+                    {evalScore !== null ? evalScore : 'Calculating...'}
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500">
-                  Freely play moves on the board to explore variations. Stockfish will evaluate in real time.
+
+                {bestMove && (
+                  <div className="flex items-center justify-between text-slate-300 mb-2">
+                    <span className="text-[11px] text-slate-400">Best Move:</span>
+                    <span className="font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                      {bestMove.san || bestMove.uci}
+                    </span>
+                  </div>
+                )}
+
+                <p className="text-[11px] text-slate-400 mb-2.5 leading-relaxed">
+                  Freely drag or click pieces for either side to test lines. Stockfish re-evaluates each move.
                 </p>
+
+                <div className="flex items-center gap-2 pt-1">
+                  <button
+                    onClick={handleResetAnalysisPosition}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors cursor-pointer"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    Reset Position
+                  </button>
+                  <button
+                    onClick={handleToggleAnalysis}
+                    className="flex-1 py-1.5 px-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    Resume Puzzle
+                  </button>
+                </div>
               </div>
             )}
           </div>

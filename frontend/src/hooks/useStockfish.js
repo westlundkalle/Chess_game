@@ -200,6 +200,7 @@ export function useStockfish(difficulty = 'intermediate') {
   const [isReady, setIsReady] = useState(true);
   const [isThinking, setIsThinking] = useState(false);
   const [evalScore, setEvalScore] = useState(null);
+  const [bestMove, setBestMove] = useState(null);
   const onMoveCallbackRef = useRef(null);
   const fallbackTimerRef = useRef(null);
 
@@ -211,38 +212,56 @@ export function useStockfish(difficulty = 'intermediate') {
       workerRef.current = worker;
 
       worker.onmessage = (e) => {
-        const line = typeof e.data === 'string' ? e.data.trim() : '';
+        const text = typeof e.data === 'string' ? e.data : '';
+        const lines = text.split('\n');
 
-        if (line === 'uciok') {
-          const preset = DIFFICULTY_PRESETS[difficulty] || DIFFICULTY_PRESETS.intermediate;
-          worker.postMessage(`setoption name Skill Level value ${preset.skill}`);
-          worker.postMessage('isready');
-        } else if (line === 'readyok') {
-          setIsReady(true);
-        } else if (line.startsWith('info') && line.includes('score cp')) {
-          const match = line.match(/score cp (-?\d+)/);
-          if (match) {
-            setEvalScore(parseInt(match[1], 10) / 100);
-          }
-        } else if (line.startsWith('bestmove')) {
-          // Clear fallback watchdog since Stockfish answered
-          if (fallbackTimerRef.current) {
-            clearTimeout(fallbackTimerRef.current);
-            fallbackTimerRef.current = null;
-          }
+        for (const rawLine of lines) {
+          const line = rawLine.trim();
+          if (!line) continue;
 
-          setIsThinking(false);
-          const parts = line.split(' ');
-          const moveUci = parts[1]; // e.g. e2e4 or e7e8q
+          if (line === 'uciok') {
+            const preset = DIFFICULTY_PRESETS[difficulty] || DIFFICULTY_PRESETS.intermediate;
+            worker.postMessage(`setoption name Skill Level value ${preset.skill}`);
+            worker.postMessage('isready');
+          } else if (line === 'readyok') {
+            setIsReady(true);
+          } else if (line.startsWith('info')) {
+            // Check for mate score: "score mate 1" or "score mate -2"
+            const mateMatch = line.match(/score mate (-?\d+)/);
+            if (mateMatch) {
+              const mateVal = parseInt(mateMatch[1], 10);
+              setEvalScore(mateVal > 0 ? `#${mateVal}` : `-${Math.abs(mateVal)}`);
+            } else {
+              const cpMatch = line.match(/score cp (-?\d+)/);
+              if (cpMatch) {
+                const cpVal = parseInt(cpMatch[1], 10) / 100;
+                setEvalScore(cpVal > 0 ? `+${cpVal.toFixed(1)}` : `${cpVal.toFixed(1)}`);
+              }
+            }
+          } else if (line.startsWith('bestmove')) {
+            // Clear fallback watchdog since Stockfish answered
+            if (fallbackTimerRef.current) {
+              clearTimeout(fallbackTimerRef.current);
+              fallbackTimerRef.current = null;
+            }
 
-          if (moveUci && moveUci !== '(none)' && onMoveCallbackRef.current) {
-            const from = moveUci.substring(0, 2);
-            const to = moveUci.substring(2, 4);
-            const promotion = moveUci.length > 4 ? moveUci.substring(4, 5) : undefined;
+            setIsThinking(false);
+            const parts = line.split(' ');
+            const moveUci = parts[1]; // e.g. e2e4 or e7e8q
 
-            const cb = onMoveCallbackRef.current;
-            onMoveCallbackRef.current = null;
-            cb({ from, to, promotion, uci: moveUci });
+            if (moveUci && moveUci !== '(none)') {
+              const from = moveUci.substring(0, 2);
+              const to = moveUci.substring(2, 4);
+              const promotion = moveUci.length > 4 ? moveUci.substring(4, 5) : undefined;
+              const moveObj = { from, to, promotion, uci: moveUci };
+              setBestMove(moveObj);
+
+              if (onMoveCallbackRef.current) {
+                const cb = onMoveCallbackRef.current;
+                onMoveCallbackRef.current = null;
+                cb(moveObj);
+              }
+            }
           }
         }
       };
@@ -277,7 +296,19 @@ export function useStockfish(difficulty = 'intermediate') {
   // Request best move for a given FEN
   const getAiMove = useCallback((fen, onBestMove) => {
     setIsThinking(true);
-    onMoveCallbackRef.current = onBestMove;
+    onMoveCallbackRef.current = onBestMove || null;
+
+    // Instant position evaluation so the UI is immediately responsive
+    try {
+      const chess = new Chess(fen);
+      const raw = evaluatePosition(chess);
+      if (chess.isCheckmate()) {
+        setEvalScore(chess.turn() === 'w' ? '-#1' : '#1');
+      } else {
+        const cp = (raw / 100).toFixed(1);
+        setEvalScore(raw > 0 ? `+${cp}` : `${cp}`);
+      }
+    } catch {}
 
     const preset = DIFFICULTY_PRESETS[difficulty] || DIFFICULTY_PRESETS.intermediate;
 
@@ -287,10 +318,23 @@ export function useStockfish(difficulty = 'intermediate') {
     if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
 
     fallbackTimerRef.current = setTimeout(() => {
+      console.log('[AI Engine] Serving deep evaluated fallback move');
+      const fallback = calculateDeepFallbackMove(fen, difficulty);
+      setIsThinking(false);
+      if (fallback) {
+        try {
+          const c = new Chess(fen);
+          const res = c.move({ from: fallback.from, to: fallback.to, promotion: fallback.promotion || 'q' });
+          if (res) {
+            setBestMove({ ...fallback, san: res.san });
+          } else {
+            setBestMove(fallback);
+          }
+        } catch {
+          setBestMove(fallback);
+        }
+      }
       if (onMoveCallbackRef.current) {
-        console.log('[AI Engine] Serving deep evaluated fallback move');
-        const fallback = calculateDeepFallbackMove(fen, difficulty);
-        setIsThinking(false);
         const cb = onMoveCallbackRef.current;
         onMoveCallbackRef.current = null;
         if (cb && fallback) cb(fallback);
@@ -325,6 +369,7 @@ export function useStockfish(difficulty = 'intermediate') {
     isReady,
     isThinking,
     evalScore,
+    bestMove,
     getAiMove,
     stop
   };
