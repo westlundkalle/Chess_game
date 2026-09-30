@@ -27,7 +27,10 @@ import {
   BookOpen,
   Info,
   Check,
-  Eye
+  Eye,
+  Play,
+  Pause,
+  Clock
 } from 'lucide-react';
 
 export default function PracticeModePage() {
@@ -219,6 +222,11 @@ export default function PracticeModePage() {
 
     if (!playedMove) return false;
 
+    // In Rush mode, automatically start the timer on the player's first move
+    if (activeMode === 'rush' && !isRushActive && !rushGameOver) {
+      setIsRushActive(true);
+    }
+
     const expectedSan = currentPuzzle.moves[moveStepIndex];
 
     // Simulate expected solution move on a position clone
@@ -384,14 +392,27 @@ export default function PracticeModePage() {
     }
   };
 
-  // Start Rush Mode
+  // Start Rush Mode (ready state: wait for player to click start or make first move)
   const startRushMode = () => {
     setActiveMode('rush');
     setRushTimeLeft(180);
     setRushScore(0);
-    setIsRushActive(true);
+    setIsRushActive(false);
     setRushGameOver(false);
     setPuzzleIndex(0);
+  };
+
+  // Restart Rush Run
+  const handleRestartRush = () => {
+    setRushTimeLeft(180);
+    setRushScore(0);
+    setIsRushActive(false);
+    setRushGameOver(false);
+    setPuzzleIndex(0);
+    setStatusMessage({
+      type: 'hint',
+      text: 'Rush reset. The timer will start on your first move or when you click Start Timer.'
+    });
   };
 
   // Start Survival Mode
@@ -539,10 +560,36 @@ export default function PracticeModePage() {
             {/* Mode-specific status */}
             {activeMode === 'rush' && (
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold px-2 py-1 rounded bg-amber-500/20 text-amber-400 font-mono">
-                  ⏳ {Math.floor(rushTimeLeft / 60)}:{(rushTimeLeft % 60).toString().padStart(2, '0')}
-                </span>
-                <span className="text-xs font-bold px-2 py-1 rounded bg-emerald-500/20 text-emerald-400">
+                {!isRushActive && !rushGameOver ? (
+                  <button
+                    onClick={() => setIsRushActive(true)}
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold shadow-sm transition-all animate-pulse"
+                    title="Start 3-minute rush timer, or make a move on the board to start automatically"
+                  >
+                    <Play className="w-3.5 h-3.5 fill-slate-950" />
+                    Start Timer (3:00)
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className={`text-xs font-bold px-2 py-1 rounded font-mono ${
+                        rushTimeLeft <= 30
+                          ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30 animate-pulse'
+                          : 'bg-amber-500/20 text-amber-400'
+                      }`}
+                    >
+                      ⏳ {Math.floor(rushTimeLeft / 60)}:{(rushTimeLeft % 60).toString().padStart(2, '0')}
+                    </span>
+                    <button
+                      onClick={() => setIsRushActive(!isRushActive)}
+                      className="p-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                      title={isRushActive ? 'Pause Timer' : 'Resume Timer'}
+                    >
+                      {isRushActive ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                    </button>
+                  </div>
+                )}
+                <span className="text-xs font-bold px-2 py-1 rounded bg-slate-800 text-slate-200">
                   Score: {rushScore}
                 </span>
               </div>
@@ -665,6 +712,51 @@ export default function PracticeModePage() {
           {/* Action Buttons: Hints, Reset, Analyze */}
           <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm">
             <h4 className="text-xs font-semibold uppercase text-slate-400 mb-2">Controls & Hints</h4>
+
+            {/* Rush Mode Start / Control Widget */}
+            {activeMode === 'rush' && (
+              <div className="mb-3 p-3 rounded-xl bg-slate-950/80 border border-slate-800">
+                {!isRushActive && !rushGameOver ? (
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                        <Clock className="w-4 h-4 text-amber-400" />
+                        3-Minute Rush Ready
+                      </span>
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                        3:00
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mb-2.5">
+                      The timer starts on your <strong>first move</strong> on the board, or click below:
+                    </p>
+                    <button
+                      onClick={() => setIsRushActive(true)}
+                      className="w-full py-2 px-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/20 transition-all cursor-pointer"
+                    >
+                      <Play className="w-4 h-4 fill-slate-950" />
+                      Start Timer Now
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+                        <Timer className="w-4 h-4 text-amber-400" />
+                        Rush In Progress
+                      </span>
+                      <p className="text-[10px] text-slate-400">Solve puzzles as fast as you can!</p>
+                    </div>
+                    <button
+                      onClick={handleRestartRush}
+                      className="text-[11px] px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold transition-colors"
+                    >
+                      Restart Run
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-2 mb-2">
               {/* Feature 3: Multi-Stage Hint Button */}
